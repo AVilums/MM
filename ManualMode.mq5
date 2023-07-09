@@ -1,8 +1,8 @@
 #property copyright "Copyright 2023, Critiq"
 #property version   "1.00"
 
-#include <Critiq/common/Alert.mqh>
-#include <Critiq/common/HardLimits.mqh>
+#include <Critiq/Alert.mqh>
+#include <Critiq/HardLimits.mqh>
 
 input double alert_1;
 input double alert_2;
@@ -24,5 +24,7 @@ void OnDeinit(const int reason) {
 }
 
 void OnTick() {
+    // hardLimits.CheckLimit();
+    // alert.listen();
 
 }

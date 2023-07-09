@@ -11,7 +11,6 @@ class Alert {
         bool sendMobile(string text) { return SendNotification(text); } 
         bool sendMail(string subject, string text) { return SendMail(subject, text); }
 };
-// extern Alert *alert = new Alert;
 
 bool Alert::Init(double p1,double p2, double p3) {
     
