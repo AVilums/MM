@@ -19,7 +19,7 @@ void entry_method2(double base, double extreme, double target, double volume, st
 
    if (range_type == "WICK") { return; }
    
-   volume = MathRound(volume/2, 2); 
+   volume = volume/2; 
 
    if (zone_type == "BZ") {
       trade.BuyLimit(volume, base+slippage, NULL, extreme-slippage, target, ORDER_TIME_GTC, 0, "EM2-BUY-BASE"); 
