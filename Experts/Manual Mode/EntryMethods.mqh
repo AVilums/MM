@@ -29,7 +29,3 @@ void entry_method2(double base, double extreme, double target, double volume, st
       trade.SellLimit(volume, half_zone-slippage, NULL, extreme+slippage, target, ORDER_TIME_GTC, 0, "EM2-SELL-MID");
    }
 }
-
-// double get_half_zone(double base, double extreme) {
-//    return MathAbs((base + extreme) / 2);
-// }
