@@ -17,11 +17,17 @@ string risk_to_reward(double base, double extreme, double target, string em) {
    } else return "null";
 }
 
-double get_pip_value(double volume) {;
-   double bid = SymbolInfoDouble(Symbol(), SYMBOL_BID);
-   double eur_bid = SymbolInfoDouble("EURGBP", SYMBOL_BID);
+double get_pip_value(double volume) {
+   // PIP VALUE = (PIP * TRADE SIZE) / EXCHANGE RATE
+   double pip = SymbolInfoDouble(Symbol(), SYMBOL_POINT) * 10;
+   double trade_size = (volume*100) * 1000;
+   double exchange_rate = SymbolInfoDouble(Symbol(), SYMBOL_BID);
+   double pip_val = (pip * trade_size) / exchange_rate;
+   
+   double eur_gbp_bid = SymbolInfoDouble("EURGBP", SYMBOL_BID);
+   pip_val = pip_val * (2 - eur_gbp_bid);
 
-   return ((volume/bid)*1000)*(2-eur_bid);
+   return pip_val;
 }
 
 string cash_risk(double base, double extreme, double volume, string em) {
