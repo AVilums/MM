@@ -22,29 +22,28 @@ double get_pip_value(double volume) {
    // PIP VALUE = (PIP * TRADE SIZE) / EXCHANGE RATE
    double pip = SymbolInfoDouble(Symbol(), SYMBOL_POINT) * 10;
    double trade_size = (volume*100) * 1000;
-   double exchange_rate = SymbolInfoDouble(Symbol(), SYMBOL_BID);
+   double exchange_rate = SymbolInfoDouble("EURJPY", SYMBOL_BID);
    double pip_val = (pip * trade_size) / exchange_rate;
-   
-   double eur_gbp_bid = SymbolInfoDouble("EURGBP", SYMBOL_BID);
-   pip_val = pip_val * (2 - eur_gbp_bid);
-
+      
    return pip_val;
 }
 
-string cash_risk(double base, double extreme, double volume, string em) {
-   double mid_stop_range = MathAbs((base - extreme - slippage * 3)) / 2 * 100;
+double cash_risk(double base, double extreme, double volume, string em, string zt) {
+   double mid_price = get_half_zone(base, extreme);
+   
+   double mid_stop_range = MathAbs(mid_price - extreme - slippage*slippage_conv(zt) * 2) * 100;
    double pip_val = get_pip_value(volume);
 
    if (em == "EM1 (50%)") {
-      return DoubleToString(pip_val * mid_stop_range, 2);
+      return NormalizeDouble(pip_val * mid_stop_range, 2);
 
    } else if (em == "EM2 (base & 50%)") {
       double risk_cash = pip_val/2 * mid_stop_range;      
       mid_stop_range = MathAbs((base - extreme)) * 100;
 
-      return DoubleToString(risk_cash + ((pip_val/2) * mid_stop_range), 2);
+      return NormalizeDouble(risk_cash + ((pip_val/2) * mid_stop_range), 2);
 
-   } else return "null";
+   } else return false;
 }
 
 string precentage_risk(double base, double extreme, double volume, string em) {

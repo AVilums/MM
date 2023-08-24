@@ -27,3 +27,7 @@ void entry_method2(double base, double extreme, double target, double volume, st
       trade.SellLimit(volume, subs_slippage(half_zone), NULL, add_slippage(extreme), target, ORDER_TIME_GTC, 0, "EM2-SELL-MID");
    }
 }
+
+void delete_trade_obj() {
+   delete trade;
+}
