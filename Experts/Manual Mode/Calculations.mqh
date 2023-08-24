@@ -1,20 +1,21 @@
 double slippage = 0.015;
 
-string risk_to_reward(double base, double extreme, double target, string em) {
+double risk_to_reward(double base, double extreme, double target, string em, string zt) {
    double mid_price = get_half_zone(base, extreme);
-   double mid_stop_range = MathAbs(mid_price - extreme - slippage * 2);
-   double mid_reward_ratio = MathAbs((mid_price - target - slippage)/mid_stop_range);
 
+   double mid_stop_range = MathAbs(mid_price - extreme - slippage*slippage_conv(zt) * 2);
+   double mid_reward_ratio = MathAbs((mid_price - target - slippage*slippage_conv(zt)) / mid_stop_range);
+   
    if (em == "EM1 (50%)") {
-      return DoubleToString(mid_reward_ratio, 2);
+      return mid_reward_ratio;
    
    } else if (em == "EM2 (base & 50%)") {
-      double base_stop_range = MathAbs(base - extreme - slippage * 2);
-      double base_reward_ratio = MathAbs((base - target - slippage)/base_stop_range);
+      double base_stop_range = MathAbs(base - extreme - slippage*slippage_conv(zt) * 2);
+      double base_reward_ratio = MathAbs((base - target - slippage*slippage_conv(zt)) / base_stop_range);
 
-      return DoubleToString((mid_reward_ratio+base_reward_ratio)/2, 2);
-   
-   } else return "null";
+      return (mid_reward_ratio+base_reward_ratio)/2;
+
+   } else return false;
 }
 
 double get_pip_value(double volume) {
@@ -31,7 +32,7 @@ double get_pip_value(double volume) {
 }
 
 string cash_risk(double base, double extreme, double volume, string em) {
-   double mid_stop_range = MathAbs((base - extreme)) / 2 * 100;
+   double mid_stop_range = MathAbs((base - extreme - slippage * 3)) / 2 * 100;
    double pip_val = get_pip_value(volume);
 
    if (em == "EM1 (50%)") {
@@ -48,7 +49,7 @@ string cash_risk(double base, double extreme, double volume, string em) {
 
 string precentage_risk(double base, double extreme, double volume, string em) {
    double acct_balance = AccountInfoDouble(ACCOUNT_BALANCE);
-   double mid_stop_range = MathAbs((base - extreme)) / 2 * 100;
+   double mid_stop_range = MathAbs((base - extreme - slippage * 3)) / 2 * 100;
    double pip_val = get_pip_value(volume);
    
    if (em == "EM1 (50%)") {
@@ -66,6 +67,10 @@ string precentage_risk(double base, double extreme, double volume, string em) {
 
    } else return "null";
 }
+
+double get_volume_step(double volume, int div) { return NormalizeDouble(volume/div, 2); }
+
+double slippage_conv(string zt) { if (zt == "SZ") { return 1; } else { return -1; } }
 
 double get_half_zone(double base, double extreme) { return MathAbs((base + extreme) / 2); }
 
