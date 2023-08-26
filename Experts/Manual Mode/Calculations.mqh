@@ -46,25 +46,26 @@ double cash_risk(double base, double extreme, double volume, string em, string z
    } else return false;
 }
 
-string precentage_risk(double base, double extreme, double volume, string em) {
+double precentage_risk(double base, double extreme, double volume, string em, string zt) {
    double acct_balance = AccountInfoDouble(ACCOUNT_BALANCE);
-   double mid_stop_range = MathAbs((base - extreme - slippage * 3)) / 2 * 100;
+   double mid_price = get_half_zone(base, extreme);
+   double mid_stop_range = MathAbs((mid_price - extreme - slippage * slippage_conv(zt) * 2));
    double pip_val = get_pip_value(volume);
    
    if (em == "EM1 (50%)") {
-      return DoubleToString(MathAbs(((pip_val * mid_stop_range) / acct_balance)) * 100, 2);
+      return NormalizeDouble(MathAbs(((pip_val * mid_stop_range * 100) / acct_balance)) * 100, 2);
 
    } else if (em == "EM2 (base & 50%)") {
-      double risk_cash = pip_val * mid_stop_range;
+      double risk_cash = pip_val * mid_stop_range * 100;
       double mid_pos_risk = ((risk_cash/2) / acct_balance) * 100;      
       
-      double base_stop_range = MathAbs(base - extreme) * 100;
-      risk_cash = pip_val * base_stop_range;
+      double base_stop_range = MathAbs(base - extreme - slippage * slippage_conv(zt) * 2);
+      risk_cash = pip_val * base_stop_range * 100;
       double base_pos_risk = ((risk_cash/2) / acct_balance) * 100;
 
-      return DoubleToString(mid_pos_risk + base_pos_risk, 2);
+      return NormalizeDouble(mid_pos_risk + base_pos_risk, 2);
 
-   } else return "null";
+   } else return false;
 }
 
 double get_volume_step(double volume, int div) {return NormalizeDouble(volume/div, 2);}
