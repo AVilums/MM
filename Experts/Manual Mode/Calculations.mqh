@@ -31,17 +31,17 @@ double get_pip_value(double volume) {
 double cash_risk(double base, double extreme, double volume, string em, string zt) {
    double mid_price = get_half_zone(base, extreme);
    
-   double mid_stop_range = MathAbs(mid_price - extreme - slippage * slippage_conv(zt) * 2) * 100;
+   double mid_stop_range = MathAbs(mid_price - extreme - slippage * slippage_conv(zt) * 2);
    double pip_val = get_pip_value(volume);
 
    if (em == "EM1 (50%)") {
-      return NormalizeDouble(pip_val * mid_stop_range, 2);
+      return NormalizeDouble(pip_val * mid_stop_range * 100, 2); 
 
    } else if (em == "EM2 (base & 50%)") {
-      double risk_cash = pip_val/2 * mid_stop_range;
-      mid_stop_range = MathAbs((base - extreme)) * 100;
+      double mid_cash_risk = pip_val/2 * (mid_stop_range * 100);
+      double base_stop_range = MathAbs((base - extreme - slippage * slippage_conv(zt) * 2)) * 100;
 
-      return NormalizeDouble(risk_cash + ((pip_val/2) * mid_stop_range), 2);
+      return NormalizeDouble(mid_cash_risk + ((pip_val/2) * base_stop_range), 2);
 
    } else return false;
 }
