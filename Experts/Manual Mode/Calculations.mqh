@@ -4,6 +4,10 @@ class Calculations {
 
       double base, extreme, target, volume;
       string zone_type, range_type, entry_method;
+      
+      double PIP;
+      double EURJPY_BID;
+      double ACCT_BALANCE;
 
    public:
       Calculations(void);
@@ -16,7 +20,7 @@ class Calculations {
       double subs_slippage(double price) { return price - slippage; }
 
       void SetValues(double cbase, double cextreme, double ctarget, double cvolume,
-                     string zt, string rt, string em);
+                     string zt, string rt, string em, bool test);
 
       double get_slippage() { return slippage; }
 
@@ -29,14 +33,26 @@ class Calculations {
 Calculations::Calculations(void) { slippage = 0.015; }
 Calculations::~Calculations(void) { }
 
-void Calculations::SetValues(double cbase, double cextreme, double ctarget, double cvolume, string zt, string rt, string em) {
-    base = cbase;
-    extreme = cextreme;
-    target = ctarget;
-    volume = cvolume;
-    zone_type = zt;
-    range_type = rt;
-    entry_method = em;
+void Calculations::SetValues(double cbase, double cextreme, double ctarget, double cvolume, string zt, string rt, string em, bool test_mode) {
+   base = cbase;
+   extreme = cextreme;
+   target = ctarget;
+   volume = cvolume;
+   zone_type = zt;
+   range_type = rt;
+   entry_method = em;
+
+   // FOR UNIT TEST STATIC VALUES ARE SET 
+   if (test_mode == true) { 
+      PIP = 0.01;
+      EURJPY_BID = 157.569;
+      ACCT_BALANCE = 10000;
+   } else { 
+      PIP = SymbolInfoDouble(Symbol(), SYMBOL_POINT) * 10;
+      EURJPY_BID = SymbolInfoDouble("EURJPY", SYMBOL_BID);
+      ACCT_BALANCE = AccountInfoDouble(ACCOUNT_BALANCE);
+   }
+
 }
 
 double Calculations::risk_to_reward() {
@@ -58,10 +74,8 @@ double Calculations::risk_to_reward() {
 
 double Calculations::get_pip_value() {
    // PIP VALUE = (PIP * TRADE SIZE) / EXCHANGE RATE
-   double pip = SymbolInfoDouble(Symbol(), SYMBOL_POINT) * 10;
    double trade_size = (volume*100) * 1000;
-   double exchange_rate = SymbolInfoDouble("EURJPY", SYMBOL_BID);
-   double pip_val = (pip * trade_size) / exchange_rate;
+   double pip_val = (PIP * trade_size) / EURJPY_BID;
       
    return pip_val;
 }
@@ -83,20 +97,20 @@ double Calculations::cash_risk() {
 }
 
 double Calculations::percentage_risk() {
-   double acct_balance = AccountInfoDouble(ACCOUNT_BALANCE);
+   
    double mid_stop_range = MathAbs((get_half_zone() - extreme - slippage * slippage_conv() * 2));
    double pip_val = get_pip_value();
    
    if (entry_method == "EM1 (50%)") {
-      return NormalizeDouble(MathAbs(((pip_val * mid_stop_range * 100) / acct_balance)) * 100, 2);
+      return NormalizeDouble(MathAbs(((pip_val * mid_stop_range * 100) / ACCT_BALANCE)) * 100, 2);
 
    } else if (entry_method == "EM2 (base & 50%)") {
       double risk_cash = pip_val * mid_stop_range * 100;
-      double mid_pos_risk = ((risk_cash/2) / acct_balance) * 100;      
+      double mid_pos_risk = ((risk_cash/2) / ACCT_BALANCE) * 100;      
       
       double base_stop_range = MathAbs(base - extreme - slippage * slippage_conv() * 2);
       risk_cash = pip_val * base_stop_range * 100;
-      double base_pos_risk = ((risk_cash/2) / acct_balance) * 100;
+      double base_pos_risk = ((risk_cash/2) / ACCT_BALANCE) * 100;
 
       return NormalizeDouble(mid_pos_risk + base_pos_risk, 2);
 
