@@ -14,4 +14,3 @@
 9. Upon pressing **Add** limit orders fill be set
 
 ## Currently works only on GBPJPY, possibly other Yen pairs as well
-## Currently slippage change as well as additional features are to be added within src. 
